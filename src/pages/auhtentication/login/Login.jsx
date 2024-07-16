@@ -1,11 +1,13 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link } from "react-router-dom";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
+import useAuth from "../../../hook/useAuth";
 
 export default function Login() {
-
+  const { setIsUserExist, getUser } = useAuth();
   const [errors, setErrors] = useState({ pin: "", contact: "" });
-
-  const handleSubmit = (e) => {
+  const axiosPublic = useAxiosPublic();
+  const handleSubmit = async (e) => {
     e.preventDefault();
 
     //validation pattern start ===============================
@@ -40,9 +42,19 @@ export default function Login() {
     }
 
     setErrors({ contact: "", pin: "" });
+
+    const userInfo = {
+      userId: emailOrNumber,
+      pin,
+    };
+
+    sessionStorage.setItem("userInfo", JSON.stringify(userInfo));
+    // setIsUserExist(userInfo)
+    await getUser(userInfo)
+   
   };
 
- 
+
 
   return (
     <section className=" min-h-screen flex items-center ">
@@ -83,8 +95,6 @@ export default function Login() {
                 name="pin"
                 placeholder="Enter a 5-digit PIN"
                 aria-label="Pin"
-                minLength="4"
-                maxLength="6"
                 // pattern="\d{4,6}"
                 required
               />
@@ -110,7 +120,7 @@ export default function Login() {
           </span>
 
           <Link
-            to='/register'
+            to="/register"
             className="mx-2 text-sm font-bold text-blue-500 dark:text-blue-400 hover:underline"
           >
             Register

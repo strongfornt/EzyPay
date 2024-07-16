@@ -1,9 +1,12 @@
 import { useState } from "react";
 import { Link } from "react-router-dom";
+import useAxiosPublic from "../../../hook/useAxiosPublic";
+import toast from "react-hot-toast";
 
 export default function Register() {
 
   const [errors, setErrors] = useState({ pin: "", contact: "" });
+  const axiosPublic = useAxiosPublic()
 
   const handleSubmit = (e) => {
     e.preventDefault();
@@ -40,6 +43,27 @@ export default function Register() {
     }
 
     setErrors({ contact: "", pin: "" });
+
+    //send it to db =================
+    const postUser = async() => {
+        const user = {
+            userId: emailOrNumber,
+            pin,
+            role:'user',
+            status: 'pending'
+        }
+        const res = await axiosPublic.post('/register',user)
+        console.log(res);
+        if(res.data.insertedId){
+            form.reset()
+            toast.success('Account created Successfully!')
+        }else if(res.data === 'User Already Exist!'){
+          toast.error('User Already Exist!')
+        }
+    }
+    postUser();
+
+
   };
 
  
@@ -83,8 +107,6 @@ export default function Register() {
                 name="pin"
                 placeholder="Enter a 5-digit PIN"
                 aria-label="Pin"
-                minLength="4"
-                maxLength="6"
                 // pattern="\d{4,6}"
                 required
               />
